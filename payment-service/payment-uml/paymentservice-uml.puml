@@ -1,0 +1,52 @@
+@startuml
+actor User as U
+
+U -> PaymentController : POST /payments/createPayment
+activate PaymentController
+
+PaymentController -> PaymentServiceImpl : createPayment(paymentRequest)
+activate PaymentServiceImpl
+
+PaymentServiceImpl -> TransportService : getName()
+activate TransportService
+TransportService -> TransportService : Processing
+TransportService -> PaymentServiceImpl : transportName
+deactivate TransportService
+
+PaymentServiceImpl -> ParkingSlotService : getLocation()
+activate ParkingSlotService
+ParkingSlotService -> ParkingSlotService : Processing
+ParkingSlotService -> PaymentServiceImpl : parkingLocation
+deactivate ParkingSlotService
+
+PaymentServiceImpl -> PaymentRepository : save(payment)
+activate PaymentRepository
+PaymentRepository -> PaymentRepository : Processing
+PaymentRepository -> PaymentServiceImpl : createdPayment
+deactivate PaymentRepository
+
+PaymentServiceImpl -> PaymentController : createdPayment
+deactivate PaymentServiceImpl
+
+PaymentController -> U : CreatedPaymentResponseDto
+deactivate PaymentController
+
+U -> PaymentController : GET /payments
+activate PaymentController
+
+PaymentController -> PaymentServiceImpl : getAllPayments()
+activate PaymentServiceImpl
+
+PaymentServiceImpl -> PaymentRepository : findAll()
+activate PaymentRepository
+PaymentRepository -> PaymentRepository : Processing
+PaymentRepository -> PaymentServiceImpl : List<Payment>
+deactivate PaymentRepository
+
+PaymentServiceImpl -> PaymentController : List<Payment>
+deactivate PaymentServiceImpl
+
+PaymentController -> U : List<Payment>
+deactivate PaymentController
+
+@enduml

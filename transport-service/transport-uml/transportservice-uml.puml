@@ -1,0 +1,34 @@
+@startuml
+
+title TransportController Interaction
+
+actor User
+
+participant "TransportController" as Controller
+participant "TransportService" as Service
+
+== Create Transport ==
+User -> Controller : POST /transport\n{Transport}
+activate Controller
+Controller -> Service : addTransport(transport)
+activate Service
+Service -> Controller : Transport
+deactivate Service
+Controller --> User : ResponseEntity<Transport>\n(HttpStatus.CREATED)
+deactivate Controller
+
+== Get Transport Name ==
+User -> Controller : GET /transport/{id}/name
+activate Controller
+Controller -> Service : getTransportById(id)
+activate Service
+Service -> Controller : Optional<Transport>
+deactivate Service
+alt Transport exists
+    Controller --> User : ResponseEntity<String>\n(HttpStatus.OK)
+else Transport not found
+    Controller --> User : ResponseEntity<Void>\n(HttpStatus.NOT_FOUND)
+end
+deactivate Controller
+
+@enduml

@@ -2,22 +2,37 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="customer-service" />
-        <module name="eureka-server" />
-        <module name="order-service" />
+        <module name="parkingslot-service" />
+        <module name="payment-service" />
+        <module name="transport-service" />
         <module name="zuul-service" />
+        <module name="eureka-server" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="auth-service" target="1.8" />
+      <module name="customer-service" target="1.8" />
+      <module name="order-service" target="1.8" />
+      <module name="parkinglot-service" target="1.8" />
+      <module name="untitled" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="auth-service" options="-parameters" />
       <module name="customer-service" options="-parameters" />
       <module name="eureka-server" options="-parameters" />
       <module name="order-service" options="-parameters" />
+      <module name="parkinglot-service" options="-parameters" />
+      <module name="parkingslot-service" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
+      <module name="transport-service" options="-parameters" />
+      <module name="untitled" options="-parameters" />
       <module name="zuul-service" options="-parameters" />
     </option>
   </component>

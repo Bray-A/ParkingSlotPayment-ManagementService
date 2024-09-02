@@ -1,0 +1,86 @@
+@startuml
+
+title ParkingSlotController Interaction
+
+actor User
+
+participant "ParkingSlotController" as Controller
+participant "ParkingSlotService" as Service
+
+== Get All Slots ==
+User -> Controller : GET /parkingslot/get
+activate Controller
+Controller -> Service : getAllSlots()
+activate Service
+Service -> Controller : List<ParkingSlot>
+deactivate Service
+Controller -> User : List<ParkingSlot>
+deactivate Controller
+
+== Get Slot By ID ==
+User -> Controller : GET /parkingslot/{id}
+activate Controller
+Controller -> Service : getSlotById(id)
+activate Service
+Service -> Controller : Optional<ParkingSlot>
+deactivate Service
+Controller -> User : ResponseEntity<ParkingSlot>
+deactivate Controller
+
+== Create Slot ==
+User -> Controller : POST /parkingslot/create\n{ParkingSlot}
+activate Controller
+Controller -> Service : createSlot(parkingSlot)
+activate Service
+Service -> Controller : ParkingSlot
+deactivate Service
+Controller -> User : ResponseEntity<ParkingSlot>
+deactivate Controller
+
+== Update Slot ==
+User -> Controller : PUT /parkingslot/{id}\n{ParkingSlot}
+activate Controller
+Controller -> Service : getSlotById(id)
+activate Service
+Service -> Controller : Optional<ParkingSlot>
+deactivate Service
+alt Slot exists
+    Controller -> Service : updateSlot(id, parkingSlot)
+    activate Service
+    Service -> Controller : ParkingSlot
+    deactivate Service
+    Controller -> User : ResponseEntity<ParkingSlot>
+else Slot not found
+    Controller --> User : ResponseEntity.notFound()
+end
+deactivate Controller
+
+== Delete Slot ==
+User -> Controller : DELETE /parkingslot/{id}
+activate Controller
+Controller -> Service : getSlotById(id)
+activate Service
+Service -> Controller : Optional<ParkingSlot>
+deactivate Service
+alt Slot exists
+    Controller -> Service : deleteSlot(id)
+    activate Service
+    Service --> Controller : void
+    deactivate Service
+    Controller --> User : ResponseEntity.noContent()
+else Slot not found
+    Controller --> User : ResponseEntity.notFound()
+end
+deactivate Controller
+
+== Get Slot Location ==
+User -> Controller : GET /parkingslot/{id}/location
+activate Controller
+Controller -> Service : getLocationById(id)
+activate Service
+Service -> Controller : Optional<String>
+deactivate Service
+Controller -> User : ResponseEntity<String>
+deactivate Controller
+
+@enduml

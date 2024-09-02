@@ -3,7 +3,7 @@ spring:
     name: zuul-service
 
 server:
-  port: 8760
+  port: 8000
 
 eureka:
   client:
@@ -23,3 +23,12 @@ Zuul:
     order-service:
       path: /order/**
       serviceId: ORDER-SERVICE
+    transport-service:
+      path: /transport/**
+      serviceId: TRANSPORT-SERVICE
+    payment-service:
+      path: /payment/**
+      serviceId: PAYMENT-SERVICE
+    parkingslot-service:
+      path: /parkingslot/**
+      serviceId: PARKINGSLOT-SERVICE
