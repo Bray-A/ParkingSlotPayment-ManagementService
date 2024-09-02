@@ -1,0 +1,320 @@
+{
+	"info": {
+		"_postman_id": "e899435c-8f23-4d70-9b03-20467d665e81",
+		"name": "ParkingManagementServices",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37507517"
+	},
+	"item": [
+		{
+			"name": "transport-post",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"BMW Sedan\",\r\n    \"type\": \"Car\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/transport/transport",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"transport",
+						"transport"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "transport-getName",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/api/transport/transport/7/name",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"transport",
+						"transport",
+						"7",
+						"name"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "parkingslot-post",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"location\": \"7C\",\r\n    \"availability\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/parkingslot/parkingslot/create",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"parkingslot",
+						"parkingslot",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "parkingslot-getAll",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/parkingslot/parkingslot/get",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"parkingslot",
+						"parkingslot",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "parkingslot-getById",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/parkingslot/parkingslot/7",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"parkingslot",
+						"parkingslot",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "parkingslot-put",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"location\": \"7D\",\r\n    \"availability\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/parkingslot/parkingslot/7",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"parkingslot",
+						"parkingslot",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "parkingslot-delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/api/parkingslot/parkingslot/7",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"parkingslot",
+						"parkingslot",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "parkingslot-getLocation",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/api/parkingslot/parkingslot/10/location",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"parkingslot",
+						"parkingslot",
+						"10",
+						"location"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "payment-createPayment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"description": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"price\": 180,\r\n    \"transportId\": 8,\r\n    \"locationId\": 8\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/payment/payments/createPayment",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"payment",
+						"payments",
+						"createPayment"
+					],
+					"query": [
+						{
+							"key": "price",
+							"value": "100",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "payment-getAllPayments",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"description": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"price\": 125,\r\n    \"transportId\": 8,\r\n    \"locationId\": 11\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/payment/payments",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"payment",
+						"payments"
+					],
+					"query": [
+						{
+							"key": "price",
+							"value": "100",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
