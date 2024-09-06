@@ -2,7 +2,6 @@ package com.test.service;
 
 import com.test.model.ParkingSlot;
 import com.test.repository.ParkingSlotRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,8 +50,8 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     }
 
     @Override
-    public Optional<String> getLocationById(Long id) {
-        return parkingSlotRepository.findById(id)
-                .map(ParkingSlot::getLocation);
+    public Optional<ParkingSlot> getLocationById(Long id) {
+        return parkingSlotRepository.findById(id);
+
     }
 }

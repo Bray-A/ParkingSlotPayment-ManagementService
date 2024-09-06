@@ -1,52 +1,110 @@
 @startuml
-actor User as U
+actor User
 
-U -> PaymentController : POST /payments/createPayment
-activate PaymentController
+box "Payment Service" #D3D3D3
+    participant "PaymentController" as Controller
+    participant "PaymentServiceImpl" as PaymentService
+    participant "PaymentRepository" as PaymentRepository
+    participant "RegularCalculate" as RegularCalculate
+    participant "VipCalculate" as VipCalculate
+end box
 
-PaymentController -> PaymentServiceImpl : createPayment(paymentRequest)
-activate PaymentServiceImpl
+box "External Services" #90EE90
+    participant "TransportService" as TransportService
+    participant "ParkingSlotService" as ParkingSlotService
+end box
 
-PaymentServiceImpl -> TransportService : getName()
+User -> Controller: createPayment(Payment paymentRequest)
+activate User
+activate Controller
+Controller -> PaymentService: createPayment(Payment)
+activate PaymentService
+
+PaymentService -> TransportService: getTransportById(transportId)
 activate TransportService
-TransportService -> TransportService : Processing
-TransportService -> PaymentServiceImpl : transportName
+TransportService -> PaymentService: Transport
 deactivate TransportService
 
-PaymentServiceImpl -> ParkingSlotService : getLocation()
+PaymentService -> ParkingSlotService: getParkingLocationById(locationId)
 activate ParkingSlotService
-ParkingSlotService -> ParkingSlotService : Processing
-ParkingSlotService -> PaymentServiceImpl : parkingLocation
+ParkingSlotService -> PaymentService: ParkingSlot
 deactivate ParkingSlotService
 
-PaymentServiceImpl -> PaymentRepository : save(payment)
+PaymentService -> ParkingSlotService: updateAvailability(locationId, false)
+activate ParkingSlotService
+ParkingSlotService -> PaymentService: updateAvailability updated
+
+deactivate ParkingSlotService
+
+alt ParkingSlot is VIP
+    PaymentService -> VipCalculate: calculateTotalPrice(transport.getType())
+    activate VipCalculate
+    VipCalculate -> PaymentService: totalPrice
+    deactivate VipCalculate
+else
+    PaymentService -> RegularCalculate: calculateTotalPrice(transport.getType())
+    activate RegularCalculate
+    RegularCalculate -> PaymentService: totalPrice
+    deactivate RegularCalculate
+end
+
+PaymentService -> PaymentRepository: save(Payment)
 activate PaymentRepository
-PaymentRepository -> PaymentRepository : Processing
-PaymentRepository -> PaymentServiceImpl : createdPayment
+PaymentRepository -> PaymentService: Payment (created)
 deactivate PaymentRepository
 
-PaymentServiceImpl -> PaymentController : createdPayment
-deactivate PaymentServiceImpl
+PaymentService -> Controller: Payment (created)
+deactivate PaymentService
 
-PaymentController -> U : CreatedPaymentResponseDto
-deactivate PaymentController
+Controller -> User: Payment created
+deactivate Controller
 
-U -> PaymentController : GET /payments
-activate PaymentController
 
-PaymentController -> PaymentServiceImpl : getAllPayments()
-activate PaymentServiceImpl
+User -> Controller: getAllPayments()
+activate Controller
+Controller -> PaymentService: getAllPayments()
+activate PaymentService
 
-PaymentServiceImpl -> PaymentRepository : findAll()
+PaymentService -> PaymentRepository: findAll()
 activate PaymentRepository
-PaymentRepository -> PaymentRepository : Processing
-PaymentRepository -> PaymentServiceImpl : List<Payment>
+PaymentRepository -> PaymentService: List<Payment>
 deactivate PaymentRepository
 
-PaymentServiceImpl -> PaymentController : List<Payment>
-deactivate PaymentServiceImpl
+PaymentService -> Controller: List<Payment>
+deactivate PaymentService
+Controller -> User: List of Payments
+deactivate Controller
 
-PaymentController -> U : List<Payment>
-deactivate PaymentController
+
+User -> Controller: deletePayment(Long id)
+activate Controller
+Controller -> PaymentService: deletePayment(Long id)
+activate PaymentService
+
+PaymentService -> PaymentRepository: findById(id)
+activate PaymentRepository
+PaymentRepository -> PaymentService: Optional<Payment>
+deactivate PaymentRepository
+
+alt Payment found
+    PaymentService -> ParkingSlotService: updateAvailability(locationId, true)
+    activate ParkingSlotService
+    ParkingSlotService -> PaymentService: updateAvailability updated
+    deactivate ParkingSlotService
+
+    PaymentService -> PaymentRepository: deleteById(id)
+    activate PaymentRepository
+    PaymentRepository -> PaymentService: deleteById deleted
+    deactivate PaymentRepository
+
+    PaymentService -> Controller: Payment deleted
+else
+    PaymentService -> Controller: RuntimeException (Payment not found)
+deactivate PaymentService
+end
+
+Controller -> User: Payment deleted
+deactivate User
+deactivate Controller
 
 @enduml

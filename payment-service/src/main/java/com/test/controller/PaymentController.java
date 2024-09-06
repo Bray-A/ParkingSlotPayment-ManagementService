@@ -11,8 +11,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/payments")
@@ -34,7 +34,6 @@ public class PaymentController {
             Payment createdPayment = paymentServiceImpl.createPayment(paymentRequest);
             CreatedPaymentResponseDto createdPaymentResponseDto = CreatedPaymentResponseDto.builder()
                     .id(createdPayment.getId())
-                    .price(createdPayment.getPrice())
                     .transportName(createdPayment.getTransportName())
                     .parkingLocation(createdPayment.getParkingLocation())
                     .totalPrice(createdPayment.getTotalPrice())
@@ -55,4 +54,15 @@ public class PaymentController {
         List<Payment> payments = paymentServiceImpl.getAllPayments();
         return new ResponseEntity<>(payments, HttpStatus.OK);
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deletePayment(@PathVariable Long id) {
+        try {
+            paymentServiceImpl.deletePayment(id);
+            return new ResponseEntity<>("Payment deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error deleting payment: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

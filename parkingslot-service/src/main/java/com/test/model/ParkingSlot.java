@@ -17,4 +17,5 @@ public class ParkingSlot {
 
     private String location;
     private boolean availability;
+    private boolean vip;
 }

@@ -1,86 +1,107 @@
 @startuml
-
-title ParkingSlotController Interaction
-
 actor User
-
 participant "ParkingSlotController" as Controller
 participant "ParkingSlotService" as Service
+participant "ParkingSlotRepository" as Repository
 
-== Get All Slots ==
-User -> Controller : GET /parkingslot/get
+User -> Controller: getAllSlots()
+activate User
 activate Controller
-Controller -> Service : getAllSlots()
+Controller -> Service: getAllSlots()
 activate Service
-Service -> Controller : List<ParkingSlot>
+Service -> Repository: findAll()
+activate Repository
+Repository -> Service: List<ParkingSlot>
+deactivate Repository
+Service -> Controller: List<ParkingSlot>
 deactivate Service
-Controller -> User : List<ParkingSlot>
+Controller -> User: List of ParkingSlot
 deactivate Controller
 
-== Get Slot By ID ==
-User -> Controller : GET /parkingslot/{id}
+== Get parking slot by ID ==
+User -> Controller: getLocation(Long id)
 activate Controller
-Controller -> Service : getSlotById(id)
+Controller -> Service: getLocationById(id)
 activate Service
-Service -> Controller : Optional<ParkingSlot>
-deactivate Service
-Controller -> User : ResponseEntity<ParkingSlot>
-deactivate Controller
+Service -> Repository: findById(id)
+activate Repository
 
-== Create Slot ==
-User -> Controller : POST /parkingslot/create\n{ParkingSlot}
-activate Controller
-Controller -> Service : createSlot(parkingSlot)
-activate Service
-Service -> Controller : ParkingSlot
-deactivate Service
-Controller -> User : ResponseEntity<ParkingSlot>
-deactivate Controller
-
-== Update Slot ==
-User -> Controller : PUT /parkingslot/{id}\n{ParkingSlot}
-activate Controller
-Controller -> Service : getSlotById(id)
-activate Service
-Service -> Controller : Optional<ParkingSlot>
-deactivate Service
-alt Slot exists
-    Controller -> Service : updateSlot(id, parkingSlot)
-    activate Service
-    Service -> Controller : ParkingSlot
+alt Parking slot exists
+    Repository -> Service: ParkingSlot
+    deactivate Repository
+    Service -> Controller: ParkingSlot
     deactivate Service
-    Controller -> User : ResponseEntity<ParkingSlot>
-else Slot not found
-    Controller --> User : ResponseEntity.notFound()
+    Controller -> User: ParkingSlot found
+deactivate Controller
+else Parking slot not found
+
+    Controller -> User: ParkingSlot not found
+deactivate Controller
 end
+
+User -> Controller: createSlot(ParkingSlot parkingSlot)
+activate Controller
+Controller -> Service: createSlot(parkingSlot)
+activate Service
+Service -> Repository: save(parkingSlot)
+activate Repository
+Repository -> Service: ParkingSlot
+deactivate Repository
+Service -> Controller: ParkingSlot
+deactivate Service
+Controller -> User: ParkingSlot created
 deactivate Controller
 
-== Delete Slot ==
-User -> Controller : DELETE /parkingslot/{id}
+
+User -> Controller: updateSlotAvailability(Long id, boolean availability)
 activate Controller
-Controller -> Service : getSlotById(id)
+Controller -> Service: getSlotById(id)
 activate Service
-Service -> Controller : Optional<ParkingSlot>
-deactivate Service
-alt Slot exists
-    Controller -> Service : deleteSlot(id)
-    activate Service
-    Service --> Controller : void
+Service -> Repository: findById(id)
+activate Repository
+
+alt Parking slot exists
+    Repository -> Service: ParkingSlot
+    deactivate Repository
+    Service -> Controller: ParkingSlot
+    Controller -> Service: updateSlot(id, ParkingSlot)
+    activate Repository
+    Repository -> Service: ParkingSlot (updated)
+    deactivate Repository
+    Service -> Controller: ParkingSlot (updated)
     deactivate Service
-    Controller --> User : ResponseEntity.noContent()
-else Slot not found
-    Controller --> User : ResponseEntity.notFound()
+    Controller -> User: ParkingSlot Availability updated
+deactivate Controller
+else Parking slot not found
+
+    deactivate Service
+    Controller -> User: ParkingSlot not found
+deactivate Controller
 end
-deactivate Controller
 
-== Get Slot Location ==
-User -> Controller : GET /parkingslot/{id}/location
+
+User -> Controller: deleteSlot(Long id)
 activate Controller
-Controller -> Service : getLocationById(id)
+Controller -> Service: getSlotById(id)
 activate Service
-Service -> Controller : Optional<String>
-deactivate Service
-Controller -> User : ResponseEntity<String>
-deactivate Controller
+Service -> Repository: findById(id)
+activate Repository
 
+alt Parking slot exists
+    Repository -> Service: ParkingSlot
+    deactivate Repository
+    Service -> Repository: deleteById(id)
+    activate Repository
+    Repository -> Service: Slot deleted
+    deactivate Repository
+    Service -> Controller: Slot deleted
+    deactivate Service
+    Controller -> User: ParkingSlot deleted
+deactivate Controller
+else Parking slot not found
+
+    Controller -> User: ParkingSlot deleted
+    deactivate User
+deactivate Controller
+end
 @enduml

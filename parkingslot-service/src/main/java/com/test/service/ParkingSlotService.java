@@ -17,5 +17,5 @@ public interface ParkingSlotService {
 
     void deleteSlot(Long id);
 
-    Optional<String> getLocationById(Long id);
+    Optional<ParkingSlot> getLocationById(Long id);
 }

@@ -21,9 +21,6 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
-    private double price;
-
     private String transportName;
     private String parkingLocation;
     private double totalPrice;

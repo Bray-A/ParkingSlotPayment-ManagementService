@@ -1,55 +1,60 @@
 package com.test.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.test.model.ParkingSlot;
 import com.test.model.Payment;
+import com.test.model.Transport;
 import com.test.repository.PaymentRepository;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
     private final RestTemplate restTemplate;
-    private final DiscoveryClient discoveryClient;
     private final PaymentRepository paymentRepository;
+    private final PriceCalculable regularCalculate;
+    private final PriceCalculable vipCalculate;
 
-    public PaymentServiceImpl(RestTemplate restTemplate, DiscoveryClient discoveryClient,
-                              PaymentRepository paymentRepository) {
-        this.restTemplate =  restTemplate;
-        this.discoveryClient = discoveryClient;
+    public PaymentServiceImpl(RestTemplate restTemplate, PaymentRepository paymentRepository, PriceCalculable regularCalculate, @Qualifier("VIP") PriceCalculable vipCalculate) {
+        this.restTemplate = restTemplate;
         this.paymentRepository = paymentRepository;
+        this.regularCalculate = regularCalculate;
+        this.vipCalculate = vipCalculate;
     }
 
     @Override
     public Payment createPayment(Payment paymentRequest) {
 
         try {
-            double price = paymentRequest.getPrice();
-            String transportServiceUrl = getServiceUrl("transport-service") + "/transport/" + paymentRequest.getTransportId() + "/name";
-            String name = restTemplate.getForObject(transportServiceUrl, String.class);
 
-            String parkingServiceUrl = getServiceUrl("parkingslot-service") + "/parkingslot/" + paymentRequest.getLocationId()+ "/location";
-            String location = restTemplate.getForObject(parkingServiceUrl, String.class);
+            String transportServiceUrl = "http://transport-service/transport/" + paymentRequest.getTransportId();
+            Transport transport = restTemplate.getForObject(transportServiceUrl, Transport.class);
+
+            String parkingServiceUrl = "http://parkingslot-service/parkingslot/location/" + paymentRequest.getLocationId();
+            ParkingSlot parkingSlot = restTemplate.getForObject(parkingServiceUrl, ParkingSlot.class);
+
+            String parkingServicePutUrl = "http://parkingslot-service/parkingslot/a/" + paymentRequest.getLocationId() + "/false";
+            try {
+                restTemplate.put(parkingServicePutUrl, null);
+            } catch (RestClientException e) {
+                throw new RuntimeException("Error reverting parking slot availability", e);
+            }
+
+            PriceCalculable priceCalculable = Boolean.TRUE.equals(parkingSlot.isVip()) ? vipCalculate : regularCalculate;
 
 
+            double totalPrice = priceCalculable.calculateTotalPrice(transport.getType());
 
-            double totalPrice = calculateTotalPrice(name, location, price);
 
-            Payment payment = Payment.builder()
-                    .price(price)
-                    .transportName(name)
-                    .parkingLocation(location)
-                    .totalPrice(totalPrice)
-                    .paymentDate(LocalDateTime.now())
-                    .transportId(paymentRequest.getTransportId())
-                    .locationId(paymentRequest.getLocationId())
-                    .build();
+            Payment payment = Payment.builder().transportName(transport.getName()).parkingLocation(parkingSlot.getLocation()).totalPrice(totalPrice).paymentDate(LocalDateTime.now()).build();
+
 
             return paymentRepository.save(payment);
 
@@ -64,18 +69,25 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
 
-    private String getServiceUrl(String serviceName) {
-        List<ServiceInstance> instances = discoveryClient.getInstances(serviceName);
-        if (instances.isEmpty()) {
-            throw new IllegalStateException("No instances found for service: " + serviceName);
+    public void deletePayment(Long id) {
+        Optional<Payment> paymentOptional = paymentRepository.findById(id);
+        if (paymentOptional.isPresent()) {
+            Payment payment = paymentOptional.get();
+            revertAvailability(payment.getLocationId());
+            paymentRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Payment not found with id " + id);
         }
-        return instances.get(0).getUri().toString();
     }
 
-    private double calculateTotalPrice(String name, String location, double price) {
-
-        double nameFactor = (name != null) ? name.length() * 10 : 0;
-        double locationFactor = (location != null) ? location.length() * 5 : 0;
-        return price + nameFactor + locationFactor;
+    private void revertAvailability(Long locationId) {
+        String slotUpdateUrl = "http://parkingslot-service/parkingslot/a/" + locationId + "/true";
+        try {
+            restTemplate.put(slotUpdateUrl, null);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error reverting parking slot availability", e);
+        }
     }
 }
+
+

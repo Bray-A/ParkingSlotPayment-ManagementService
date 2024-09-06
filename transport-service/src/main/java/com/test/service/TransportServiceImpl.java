@@ -4,6 +4,7 @@ import com.test.model.Transport;
 import com.test.repository.TransportRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,4 +25,9 @@ public class TransportServiceImpl implements TransportService {
     public Optional<Transport> getTransportById(Long id) {
         return transportRepository.findById(id);
     }
+
+    @Override
+    public List<Transport> getAllTransport() {
+        return transportRepository.findAll();
+}
 }

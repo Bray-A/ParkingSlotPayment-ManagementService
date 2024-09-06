@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -19,15 +20,21 @@ public class TransportController {
         this.transportService = transportService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Transport> createTransport(@RequestBody Transport transport) {
         Transport createdTransport = transportService.addTransport(transport);
         return new ResponseEntity<>(createdTransport, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}/name")
-    public ResponseEntity<String> getName(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Transport> getName(@PathVariable Long id) {
         Optional<Transport> transport = transportService.getTransportById(id);
-        return transport.map(value -> new ResponseEntity<>(value.getName(), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return transport.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-}
+
+    @GetMapping
+    public List<Transport> getAllTransport () {
+        return transportService.getAllTransport();
+    }
+
+    }

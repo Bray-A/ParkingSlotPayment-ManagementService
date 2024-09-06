@@ -1,34 +1,57 @@
 @startuml
-
-title TransportController Interaction
-
 actor User
-
 participant "TransportController" as Controller
 participant "TransportService" as Service
+participant "TransportRepository" as Repository
 
-== Create Transport ==
-User -> Controller : POST /transport\n{Transport}
+
+User -> Controller: createTransport(Transport transport)
+activate User
 activate Controller
-Controller -> Service : addTransport(transport)
+Controller -> Service: addTransport(Transport)
 activate Service
-Service -> Controller : Transport
+Service -> Repository: save(Transport)
+activate Repository
+Repository -> Service: Transport (created)
+deactivate Repository
+Service -> Controller: Transport (created)
 deactivate Service
-Controller --> User : ResponseEntity<Transport>\n(HttpStatus.CREATED)
+Controller -> User: Transport created
 deactivate Controller
 
-== Get Transport Name ==
-User -> Controller : GET /transport/{id}/name
+
+User -> Controller: getName(Long id)
 activate Controller
-Controller -> Service : getTransportById(id)
+Controller -> Service: getTransportById(id)
 activate Service
-Service -> Controller : Optional<Transport>
-deactivate Service
+Service -> Repository: findById(id)
+activate Repository
+
 alt Transport exists
-    Controller --> User : ResponseEntity<String>\n(HttpStatus.OK)
-else Transport not found
-    Controller --> User : ResponseEntity<Void>\n(HttpStatus.NOT_FOUND)
-end
+    Repository -> Service: Transport
+    deactivate Repository
+    Service -> Controller: Transport
+    deactivate Service
+    Controller -> User: Transport found
 deactivate Controller
+else Transport not found
 
+    Controller -> User: Transport not found
+deactivate Controller
+end
+
+
+User -> Controller: getAllTransport()
+activate Controller
+Controller -> Service: getAllTransport()
+activate Service
+Service -> Repository: findAll()
+activate Repository
+Repository -> Service: List<Transport>
+deactivate Repository
+Service -> Controller: List<Transport>
+deactivate Service
+Controller -> User: List of Transport
+deactivate Controller
+deactivate User
 @enduml
